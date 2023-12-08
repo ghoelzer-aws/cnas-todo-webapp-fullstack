@@ -1,4 +1,4 @@
-Name: main_fullstack_workflow
+Name: primary_fullstack_workflow
 SchemaVersion: "1.0"
 Triggers:
   - Type: PUSH
