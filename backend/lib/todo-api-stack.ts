@@ -1,9 +1,11 @@
-import { CfnOutput, Stack, StackProps, Aws } from 'aws-cdk-lib';
+import { CfnOutput, Stack, StackProps, Aws, RemovalPolicy, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as nodejsfunction from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as codedeploy from 'aws-cdk-lib/aws-codedeploy';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as path from 'path';
 
 export interface TodoApiStackProps extends StackProps {
@@ -21,6 +23,11 @@ export class TodoApiStack extends Stack {
       partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
     });
 
+    // Create CodeDeploy Application for Stack
+    const TodoWebappFullstack = new codedeploy.LambdaApplication(this, 'TodoWebappFullstack', {
+      applicationName: 'TodoWebappAPI', // optional property
+    });
+    
     const getTodos = createFunction(this, 'getTodos', ddb, props?.allowedOrigins);
     ddb.grantReadData(getTodos);
 
@@ -81,9 +88,15 @@ export class TodoApiStack extends Stack {
     });
   }
 }
-function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, allowedOrigins?: string) {
-  return  new nodejsfunction.NodejsFunction(scope, name, {
+function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, cdapp: codedeploy.LambdaApplication, allowedOrigins?: string) {
+  
+  var todoFunc =  new nodejsfunction.NodejsFunction(scope, name, {
+    currentVersionOptions: {
+      removalPolicy: RemovalPolicy.RETAIN,
+      retryAttempts: 1,                   // async retry attempts
+    },
     runtime: lambda.Runtime.NODEJS_16_X,
+    architecture: lambda.Architecture.ARM_64,
     entry: path.join(__dirname, `../lambda/${name}.ts`),
     handler: 'lambdaHandler',
     bundling: {
@@ -106,5 +119,32 @@ function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, all
       )
     ],
     tracing: lambda.Tracing.ACTIVE,
-});
+  });
+
+    // Create Function + Version/Alias
+    var todoFuncAlias = todoFunc.addAlias('live');
+    
+    // Create Cloudwatch Metric/Alarm to track Average Functions Errors
+    var todoFuncErrorRate = todoFunc.metricErrors({
+      statistic: cloudwatch.Stats.AVERAGE,
+      period: Duration.minutes(1),
+      label: name || ' Todos Lambda failure rate'
+    });
+    var todoFuncAlarm = new cloudwatch.Alarm(scope, name + ' Lambda failure Alarm', {
+      metric: todoFuncErrorRate,
+      threshold: 1,
+      evaluationPeriods: 1,
+    });
+    
+    // Create CodeDeploy Deployment Group, use Alarm to govern rollback
+    new codedeploy.LambdaDeploymentGroup(scope, name + '-BlueGreenDeployment', {
+      application: cdapp, 
+      alias: todoFuncAlias,
+      deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
+      alarms: [
+        todoFuncAlarm,
+      ],
+    });
+
+return todoFuncAlias;
 }
