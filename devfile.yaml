@@ -1,0 +1,43 @@
+schemaVersion: 2.0.0
+metadata:
+  name: aws-universal
+  version: 1.0.1
+  displayName: AWS Universal
+  description: Stack with AWS Universal Tooling
+  tags:
+    - aws
+    - a12
+  projectType: aws
+components:
+  - name: aws-runtime
+    container:
+      image: public.ecr.aws/aws-mde/universal-image:3.0
+      mountSources: true
+      volumeMounts:
+        - name: docker-store
+          path: /var/lib/docker
+  - name: docker-store
+    volume:
+      size: 16Gi
+events:
+  postStart:
+    - build-and-test-backend
+    - build-and-test-frontend
+    - install-cdk-dependencies
+commands:
+  - id: build-and-test-backend
+    exec:
+      commandLine: npm install && npm run build && npm test && npm run coverage
+      workingDir: $PROJECT_SOURCE/backend
+      component: aws-runtime
+  - id: build-and-test-frontend
+    exec:
+      commandLine: npm install && npm run build && npm test --passWithNoTests && npm
+        run coverage
+      workingDir: $PROJECT_SOURCE/frontend
+      component: aws-runtime
+  - id: install-cdk-dependencies
+    exec:
+      commandLine: npm install
+      workingDir: $PROJECT_SOURCE/frontend/cdk
+      component: aws-runtime
