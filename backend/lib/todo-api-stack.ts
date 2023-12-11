@@ -51,6 +51,9 @@ export class TodoApiStack extends Stack {
       deployOptions: {
         tracingEnabled: true,
       },
+      endpointConfiguration: {
+        types: [ apigateway.EndpointType.REGIONAL ]
+      },
     });
     const api = apiGateway.root.addResource('api');
 

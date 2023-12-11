@@ -24,6 +24,8 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
       throw new Error('Table name missing');
     }
 
+    console.log('*** BLUE addTodo ARM64 RELEASE ***');
+    
     let payload: Todo;
     try {
       payload = JSON.parse(event!.body!);

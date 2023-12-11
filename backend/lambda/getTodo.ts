@@ -21,8 +21,8 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
     if (!tableName) {
       throw new Error('Table name missing');
     }
-
-    console.log(`Table name: ${tableName}`);
+    
+    console.log('*** BLUE getTodo ARM64 RELEASE ***');
 
     if (!event?.pathParameters?.id) {
       return new CorsAPIGatewayProxyResult(400, { message: 'Missing id' });
