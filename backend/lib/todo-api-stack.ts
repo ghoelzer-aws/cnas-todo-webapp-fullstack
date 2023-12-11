@@ -28,22 +28,22 @@ export class TodoApiStack extends Stack {
       applicationName: 'TodoWebappAPI', // optional property
     });
     
-    const getTodos = createFunction(this, 'getTodos', ddb, props?.allowedOrigins);
+    const getTodos = createFunction(this, 'getTodos', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantReadData(getTodos);
 
-    const getTodo = createFunction(this, 'getTodo', ddb, props?.allowedOrigins);
+    const getTodo = createFunction(this, 'getTodo', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantReadData(getTodo);
 
-    const addTodo = createFunction(this, 'addTodo', ddb, props?.allowedOrigins);
+    const addTodo = createFunction(this, 'addTodo', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantWriteData(addTodo);
 
-    const deleteTodo = createFunction(this, 'deleteTodo', ddb, props?.allowedOrigins);
+    const deleteTodo = createFunction(this, 'deleteTodo', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantWriteData(deleteTodo);
 
-    const updateTodo = createFunction(this, 'updateTodo', ddb, props?.allowedOrigins);
+    const updateTodo = createFunction(this, 'updateTodo', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantWriteData(updateTodo);
 
-    const apiGateway = new apigateway.RestApi(this, 'ApiGateway', {
+    const apiGateway = new apigateway.RestApi(this, 'TodoWebappGateway', {
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
@@ -125,11 +125,14 @@ function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, cda
     var todoFuncAlias = todoFunc.addAlias('live');
     
     // Create Cloudwatch Metric/Alarm to track Average Functions Errors
+
+
     var todoFuncErrorRate = todoFunc.metricErrors({
-      statistic: cloudwatch.Stats.AVERAGE,
+      statistic: cloudwatch.Statistic.AVERAGE,
       period: Duration.minutes(1),
       label: name || ' Todos Lambda failure rate'
     });
+
     var todoFuncAlarm = new cloudwatch.Alarm(scope, name + ' Lambda failure Alarm', {
       metric: todoFuncErrorRate,
       threshold: 1,
