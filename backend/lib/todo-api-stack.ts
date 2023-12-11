@@ -43,7 +43,7 @@ export class TodoApiStack extends Stack {
     const updateTodo = createFunction(this, 'updateTodo', ddb, TodoWebappFullstack, props?.allowedOrigins);
     ddb.grantWriteData(updateTodo);
 
-    const apiGateway = new apigateway.RestApi(this, 'TodoWebappGateway', {
+    const apiGateway = new apigateway.RestApi(this, 'TodoApiGateway', {
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
