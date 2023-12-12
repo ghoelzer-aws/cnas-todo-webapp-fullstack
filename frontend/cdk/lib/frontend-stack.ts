@@ -51,6 +51,14 @@ export class FrontendStack extends cdk.Stack {
           }
         }]
       }],
+      viewerCertificate: cloudfront.ViewerCertificate.fromIamCertificate(
+        '871a95f1-28f9-43b6-b09e-267d2296be32',
+        {
+          aliases: ['todo.grhoelze.people.aws.dev'],
+          securityPolicy: cloudfront.SecurityPolicyProtocol.SSL_V3, // default
+          sslMethod: cloudfront.SSLMethod.SNI, // default
+        },
+      ),
       errorConfigurations: [{
         errorCode: 404,
         errorCachingMinTtl: 0,
