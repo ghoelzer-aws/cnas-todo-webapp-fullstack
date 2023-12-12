@@ -93,12 +93,12 @@ export class TodoApiStack extends Stack {
 }
 function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, cdapp: codedeploy.LambdaApplication, allowedOrigins?: string) {
   
-  var todoFunc = new nodejsfunction.NodejsFunction(scope, name, {
+  var todoFunc =  new nodejsfunction.NodejsFunction(scope, name, {
     currentVersionOptions: {
       removalPolicy: RemovalPolicy.RETAIN,
       retryAttempts: 1,                   // async retry attempts
     },
-    runtime: lambda.Runtime.NODEJS_16_X,
+    runtime: lambda.Runtime.NODEJS_18_X,
     architecture: lambda.Architecture.ARM_64,
     entry: path.join(__dirname, `../lambda/${name}.ts`),
     handler: 'lambdaHandler',
@@ -119,39 +119,35 @@ function createFunction(scope: Construct, name: string, ddb: dynamodb.Table, cda
     layers: [
       lambda.LayerVersion.fromLayerVersionArn(
         scope, `PowertoolsLayer-${name}`, `arn:aws:lambda:${Aws.REGION}:094274105915:layer:AWSLambdaPowertoolsTypeScript:4`
-      ),
-      lambda.LayerVersion.fromLayerVersionArn(
-        scope, `AppConfigLayer-${name}`, `arn:aws:lambda:us-west-2:359756378197:layer:AWS-AppConfig-Extension-Arm64:63`
       )
     ],
     tracing: lambda.Tracing.ACTIVE,
   });
 
-  // Create Function + Version/Alias
-  var todoFuncAlias = todoFunc.addAlias('live');
+    // Create Function + Version/Alias
+    var todoFuncAlias = todoFunc.addAlias('live');
+    
+    // Create Cloudwatch Metric/Alarm to track Average Functions Errors
+    var todoFuncErrorRate = todoFunc.metricErrors({
+      statistic: cloudwatch.Stats.AVERAGE,
+      period: Duration.minutes(1),
+      label: name || ' Todos Lambda failure rate'
+    });
+    var todoFuncAlarm = new cloudwatch.Alarm(scope, name + ' Lambda failure Alarm', {
+      metric: todoFuncErrorRate,
+      threshold: 1,
+      evaluationPeriods: 1,
+    });
+    
+    // Create CodeDeploy Deployment Group, use Alarm to govern rollback
+    new codedeploy.LambdaDeploymentGroup(scope, name + '-BlueGreenDeployment', {
+      application: cdapp, 
+      alias: todoFuncAlias,
+      deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
+      alarms: [
+        todoFuncAlarm,
+      ],
+    });
 
-  // Create Cloudwatch Metric/Alarm to track Average Functions Errors
-  var todoFuncErrorRate = todoFunc.metricErrors({
-    statistic: cloudwatch.Statistic.AVERAGE,
-    period: Duration.minutes(1),
-    label: name || ' Todos Lambda failure rate'
-  });
-
-  var todoFuncAlarm = new cloudwatch.Alarm(scope, name + ' Lambda failure Alarm', {
-    metric: todoFuncErrorRate,
-    threshold: 1,
-    evaluationPeriods: 1,
-  });
-
-  // Create CodeDeploy Deployment Group, use Alarm to govern rollback
-  new codedeploy.LambdaDeploymentGroup(scope, name + '-BlueGreenDeployment', {
-    application: cdapp,
-    alias: todoFuncAlias,
-    deploymentConfig: codedeploy.LambdaDeploymentConfig.CANARY_10PERCENT_5MINUTES,
-    alarms: [
-      todoFuncAlarm,
-    ],
-  });
-
-  return todoFuncAlias;
+return todoFuncAlias;
 }
