@@ -34,7 +34,7 @@
     "@aws-sdk/lib-dynamodb": "^3.178.0",
     "@middy/core": "^3.6.2",
     "@types/aws-lambda": "^8.10.104",
-    "aws-cdk-lib": "2.41.0",
+    "aws-cdk-lib": "2.105.0",
     "aws-sdk": "^2.1223.0",
     "aws-sdk-mock": "^5.8.0",
     "axios": "^1.1.3",
