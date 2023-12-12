@@ -20,7 +20,7 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
             throw new Error('Table name missing');
         }
 
-        console.log('*** BLUE deleteTodo ARM64 RELEASE ***');
+        console.log('*** GREEN deleteTodo ARM64 RELEASE ***');
         
         if (!event.pathParameters?.id) {
             return new CorsAPIGatewayProxyResult(400, { message: 'Invalid request' });
