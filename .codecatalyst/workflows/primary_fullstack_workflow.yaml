@@ -162,7 +162,7 @@ Actions:
       Artifacts:
         - backend
     DependsOn:
-      - BackendCDKBootstrapAction
+      - BackendStandbyCDKBootstrapAction
     Configuration:
       StackName: demoTodoWebappBackendStack-Primary
       CdkRootPath: backend/
