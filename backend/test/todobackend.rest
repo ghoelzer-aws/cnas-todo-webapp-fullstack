@@ -1,0 +1,18 @@
+#Cloudfront GET of /prod/api/todo API
+https://todo.grhoelze.people.aws.dev/api/todos
+###
+#Cloudfront get of specific Task
+https://todo.grhoelze.people.aws.dev/api/todos/2318c0092f7a3bf14d0a96ec79739f82
+###
+
+###
+POST https://todo.grhoelze.people.aws.dev/api/todos HTTP/1.1
+content-type: application/json
+
+{
+    "title": "Testing todo.grhoelze.people.aws.dev {{$guid}}",
+    "description": "Testing Cloudfront Endpoint todo.grhoelze.people.aws.dev"
+}
+###
+#Cloudfront GET of /prod/api/todo API using new subdomain
+#http://api-west.grhoelze.people.aws.dev/api/todos

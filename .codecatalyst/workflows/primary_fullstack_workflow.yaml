@@ -141,3 +141,35 @@ Actions:
       Connections:
         - Name: "957576607483"
           Role: CodeCatalystPreviewDevelopmentAdministrator-nm9qvf
+  BackendStandbyCDKBootstrapAction:
+    Identifier: aws/cdk-bootstrap@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendTest
+      - BackendBuildAndPackage
+    Configuration:
+      Region: us-east-1
+    Environment:
+      Name: default_environment
+      Connections:
+        - Name: "957576607483"
+          Role: CodeCatalystPreviewDevelopmentAdministrator-nm9qvf
+  BackendStandbyCDKDeploy:
+    Identifier: aws/cdk-deploy@v1
+    Inputs:
+      Artifacts:
+        - backend
+    DependsOn:
+      - BackendCDKBootstrapAction
+    Configuration:
+      StackName: demoTodoWebappBackendStack-Primary
+      CdkRootPath: backend/
+      Region: us-east-1
+      Context: '{"stack_name": "demoTodoWebappBackendStack-Primary"}'
+    Environment:
+      Name: default_environment
+      Connections:
+        - Name: "957576607483"
+          Role: CodeCatalystPreviewDevelopmentAdministrator-nm9qvf
