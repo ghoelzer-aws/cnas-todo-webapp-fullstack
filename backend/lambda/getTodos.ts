@@ -24,7 +24,7 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
       throw new Error('Table name missing');
     }
 
-    console.log('*** BLUE getTodos ARM64 RELEASE ***');
+    console.log('*** GREEN getTodos ARM64 RELEASE ***');
 
     let params: DynamoDB.DocumentClient.ScanInput = {
       TableName: tableName,
