@@ -13,14 +13,13 @@ const tracer = new Tracer();
 const metrics = new Metrics();
 
 const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGatewayProxyResult> => {
-//  try {
+  try {
 
-//    const tableName = process.env.DDB_TABLE;
-    const tableName = null;
+    const tableName = process.env.DDB_TABLE;
 
     const dynamoDB = tracer.captureAWSClient(new DynamoDB.DocumentClient());
 
-    console.log('*** BLUE getTodos ARM64 RELEASE ***');
+    console.log('*** GREEN getTodos ARM64 RELEASE ***');
 
     if (!tableName) {
       throw new Error('Table name missing');
@@ -46,10 +45,10 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
       nextToken = data.LastEvaluatedKey;
     } while (nextToken);
     return new CorsAPIGatewayProxyResult(200, todos);
-//  } catch (error) {
-//    logger.error('Failed getTodos', error as Error);
-    // return new CorsAPIGatewayProxyResult(500, { message: (error as Error).message });
-//  }
+  } catch (error) {
+    logger.error('Failed getTodos', error as Error);
+     return new CorsAPIGatewayProxyResult(500, { message: (error as Error).message });
+  }
 };
 
 export const lambdaHandler = middy(handler)
