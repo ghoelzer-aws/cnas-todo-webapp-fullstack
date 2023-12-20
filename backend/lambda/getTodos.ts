@@ -15,16 +15,16 @@ const metrics = new Metrics();
 const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGatewayProxyResult> => {
 //  try {
 
-    const tableName = process.env.DDB_TABLE;
-//    const tableName = null;
+//    const tableName = process.env.DDB_TABLE;
+    const tableName = null;
 
     const dynamoDB = tracer.captureAWSClient(new DynamoDB.DocumentClient());
+
+    console.log('*** BLUE getTodos ARM64 RELEASE ***');
 
     if (!tableName) {
       throw new Error('Table name missing');
     }
-
-    console.log('*** GREEN getTodos ARM64 RELEASE ***');
 
     let params: DynamoDB.DocumentClient.ScanInput = {
       TableName: tableName,
