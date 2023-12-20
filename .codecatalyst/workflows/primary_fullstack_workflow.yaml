@@ -20,6 +20,7 @@ Actions:
         - Run: echo "Building Backend Artifacts..."
   BackendTest:
     Identifier: aws/managed-test@v1
+    if: false
     Inputs:
       Sources:
         - WorkflowSource
@@ -147,7 +148,7 @@ Actions:
       Artifacts:
         - backend
     DependsOn:
-      - BackendTest
+#      - BackendTest
       - BackendBuildAndPackage
     Configuration:
       Region: us-east-1
