@@ -13,11 +13,11 @@ const tracer = new Tracer();
 const metrics = new Metrics();
 
 const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGatewayProxyResult> => {
-  try {
+//  try {
 
-//    const tableName = process.env.DDB_TABLE;
-    const tableName = null;
-    
+    const tableName = process.env.DDB_TABLE;
+//    const tableName = null;
+
     const dynamoDB = tracer.captureAWSClient(new DynamoDB.DocumentClient());
 
     if (!tableName) {
@@ -46,11 +46,10 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
       nextToken = data.LastEvaluatedKey;
     } while (nextToken);
     return new CorsAPIGatewayProxyResult(200, todos);
-  } catch (error) {
-    logger.error('Failed getTodos', error as Error);
-    throw new Error('Testing fallback');
+//  } catch (error) {
+//    logger.error('Failed getTodos', error as Error);
     // return new CorsAPIGatewayProxyResult(500, { message: (error as Error).message });
-  }
+//  }
 };
 
 export const lambdaHandler = middy(handler)
