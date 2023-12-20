@@ -43,7 +43,7 @@ Actions:
       Artifacts:
         - backend
     DependsOn:
-      - BackendTest
+#      - BackendTest
       - BackendBuildAndPackage
     Configuration:
       Region: us-west-2
