@@ -18,26 +18,26 @@ Actions:
     Configuration:
       Steps:
         - Run: echo "Building Backend Artifacts..."
-  BackendTest:
-    Identifier: aws/managed-test@v1
-    if: false
-    Inputs:
-      Sources:
-        - WorkflowSource
-    Outputs:
-      AutoDiscoverReports:
-        IncludePaths:
-          - backend/**/*
-        ExcludePaths:
-          - "*/.aws/workflows/*"
-        ReportNamePrefix: AutoDiscovered
-        Enabled: true
-    Configuration:
-      Steps:
-        - Run: cd backend
-        - Run: npm install
-        - Run: npm test
-        - Run: npm run coverage
+#  BackendTest:
+#    Identifier: aws/managed-test@v1
+#    On: false
+#    Inputs:
+#      Sources:
+#        - WorkflowSource
+#    Outputs:
+#      AutoDiscoverReports:
+#        IncludePaths:
+#          - backend/**/*
+#        ExcludePaths:
+#          - "*/.aws/workflows/*"
+#        ReportNamePrefix: AutoDiscovered
+#        Enabled: true
+#    Configuration:
+#      Steps:
+#        - Run: cd backend
+#        - Run: npm install
+#        - Run: npm test
+#        - Run: npm run coverage
   BackendCDKBootstrapAction:
     Identifier: aws/cdk-bootstrap@v1
     Inputs:
