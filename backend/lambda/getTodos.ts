@@ -15,15 +15,16 @@ const metrics = new Metrics();
 const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGatewayProxyResult> => {
   try {
 
-    const tableName = process.env.DDB_TABLE;
-
+//    const tableName = process.env.DDB_TABLE;
+    const tableName = null;
+    
     const dynamoDB = tracer.captureAWSClient(new DynamoDB.DocumentClient());
 
     if (!tableName) {
       throw new Error('Table name missing');
     }
 
-    console.log('*** BLUE getTodos ARM64 RELEASE ***');
+    console.log('*** GREEN getTodos ARM64 RELEASE ***');
 
     let params: DynamoDB.DocumentClient.ScanInput = {
       TableName: tableName,
@@ -47,7 +48,8 @@ const handler = async (event: APIGatewayEvent, context?: Context): Promise<APIGa
     return new CorsAPIGatewayProxyResult(200, todos);
   } catch (error) {
     logger.error('Failed getTodos', error as Error);
-    return new CorsAPIGatewayProxyResult(500, { message: (error as Error).message });
+    throw new Error('Testing fallback');
+    // return new CorsAPIGatewayProxyResult(500, { message: (error as Error).message });
   }
 };
 
